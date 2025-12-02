@@ -10,7 +10,7 @@
         state: present
     - name: Clone Python app repo
       git:
-        repo: 'https://your-git/internal/hello-python-app.git'
+        repo: 'https://github.com/hlwshreya/python-test-app.git'
         dest: "{{ app_path }}"
         version: main
     - name: Install Python dependencies
