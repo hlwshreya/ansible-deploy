@@ -25,10 +25,10 @@
           After=network.target
           
           [Service]
-          User=deployuser
+          User=jenkins
           WorkingDirectory={{ app_path }}
           Environment="PATH=/opt/hello-python-app/venv/bin"
-          ExecStart=/usr/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 wsgi:application
+          ExecStart=/usr/local/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 wsgi:application
           Restart=always
           
           [Install]
