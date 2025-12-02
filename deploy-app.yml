@@ -1,0 +1,46 @@
+---
+- hosts: app_servers
+  become: yes
+  vars:
+    app_path: /opt/hello-python-app
+  tasks:
+    - name: Install Python pip
+      package:
+        name: ['python3', 'python3-pip']
+        state: present
+    - name: Clone Python app repo
+      git:
+        repo: 'https://your-git/internal/hello-python-app.git'
+        dest: "{{ app_path }}"
+        version: main
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ app_path }}/requirements.txt"
+        executable: pip3
+    - name: Create systemd service
+      copy:
+        content: |
+          [Unit]
+          Description=Python Flask Hello App
+          After=network.target
+          
+          [Service]
+          User=deployuser
+          WorkingDirectory={{ app_path }}
+          Environment="PATH=/opt/hello-python-app/venv/bin"
+          ExecStart=/usr/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 wsgi:application
+          Restart=always
+          
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/hello-python-app.service
+    - name: Install gunicorn
+      pip:
+        name: gunicorn
+        executable: pip3
+    - name: Start and enable service
+      systemd:
+        name: hello-python-app
+        enabled: yes
+        state: started
+        daemon_reload: yes
